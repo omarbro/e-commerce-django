@@ -9,6 +9,7 @@ from . import models
 
 @admin.register(models.Collection)
 class CollectionAdmin(admin.ModelAdmin):
+    search_fields=['title']
     list_display = ['title', 'products_count']
     
     
@@ -51,6 +52,10 @@ class InventoryFilter(admin.SimpleListFilter):
 
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
+    autocomplete_fields=['collection']
+    prepopulated_fields= {
+        'slug':['title']
+    }
     actions= ['clear_inventory']
     list_display = ['title','unit_price','inventory_status', 'collection_title']
     list_editable = ['unit_price']
