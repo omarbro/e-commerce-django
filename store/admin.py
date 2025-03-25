@@ -1,4 +1,5 @@
 from django.contrib import admin, messages
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.db.models import Count
 from django.utils.html import format_html, urlencode 
 from django.urls import reverse
@@ -49,6 +50,8 @@ class InventoryFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() == '<10':
             return queryset.filter(inventory__lt=10)
+        
+
 
 @admin.register(models.Product)
 class ProductAdmin(admin.ModelAdmin):
@@ -56,6 +59,7 @@ class ProductAdmin(admin.ModelAdmin):
     prepopulated_fields= {
         'slug':['title']
     }
+    search_fields= ['title']
     actions= ['clear_inventory']
     list_display = ['title','unit_price','inventory_status', 'collection_title']
     list_editable = ['unit_price']
@@ -83,8 +87,12 @@ class ProductAdmin(admin.ModelAdmin):
             messages.ERROR
             )
 
-
+class OrderItemInline(admin.TabularInline):
+    autocomplete_fields= ['product']
+    model = models.OrderItem
+    extra= 0
 
 @admin.register(models.Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display=[ 'id','placed_at','customer']
+    inlines= [OrderItemInline]
